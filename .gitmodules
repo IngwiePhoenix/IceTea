@@ -1,0 +1,15 @@
+[submodule ".deps/v"]
+	path = .deps/v
+	url = https://github.com/vlang/v.git
+[submodule ".deps/mbedtls"]
+	path = .deps/mbedtls
+	url = https://github.com/ARMmbed/mbedtls.git
+[submodule ".deps/jerryscript"]
+	path = .deps/jerryscript
+	url = https://github.com/jerryscript-project/jerryscript.git
+[submodule ".deps/mongoose"]
+	path = .deps/mongoose
+	url = https://github.com/cesanta/mongoose.git
+[submodule ".deps/subprocess"]
+	path = .deps/subprocess
+	url = https://github.com/sheredom/subprocess.h.git
