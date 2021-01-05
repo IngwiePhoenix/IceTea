@@ -36,7 +36,7 @@ $if option mg_openssl {}
 // Internal string lib
 struct C.mg_str {
 	ptr charptr // const
-	len size_t // What's size_t in V?
+	len size_t
 }
 fn C.mg_str(charptr) C.mg_str
 fn C.mg_str_n(charptr) C.mg_str
@@ -60,9 +60,9 @@ const {
 struct C.mg_timer {
 	period_ms int
 	flags int
-	fn fn(voidptr)voidptr
+	fn fn(voidptr)voidptr // fixme: This most definitively won't work.
 	arg voidptr
-	expire ulong
+	expire u32
 	next &C.mg_timer
 }
 fn C.mg_timer_init(&C.mg_timer, int, int, fn(voidptr)voidptr, voidptr)
@@ -81,21 +81,21 @@ fn C.mg_ntohl(u32) u32
 fn C.mg_hexdump(charptr, int) charptr
 fn C.mg_hex(charptr, int, charptr) charptr
 fn C.mg_unhex(charptr, int, charptr)
-fn C.mg_unhexn(charptr, int) ulong
+fn C.mg_unhexn(charptr, int) u32
 fn C.mg_asprintf(charptrptr, size_t, charptr, ...any) int
 fn C.mg_vasprintf(charptrptr, size_t, charptr, ...any) int
 fn C.mg_to64(C.mg_str) i64
-fn C.mg_time() c.double // what's a double in V?
-fn C.mg_millis() ulong
-fn C.mg_usleep(ulong)
+fn C.mg_time() f32 // what's a double in V?
+fn C.mg_millis() u32
+fn C.mg_usleep(u32)
 // from cdefs
 fn C.mg_htons(u16) u16
 fn C.mg_htonl(u32) u32
 fn C.MG_SWAP16(i16) i16
-fn C.MG_SWAP32(i32) i32
+fn C.MG_SWAP32(int) int
 
 // URL stuff
-fn C.mg_url_port(charptr) ushort
+fn C.mg_url_port(charptr) ushort // FIXME: u16?
 fn C.mg_url_is_ssl(charptr) int
 fn C.mg_url_host(charptr) C.mg_str
 fn C.mg_url_user(charptr) C.mg_str
@@ -126,23 +126,23 @@ fn C.mg_base64_decode(charptr, int, mut charptr) int
 struct mg_md5_ctx {
 	buf [4]u32
 	bits [2]u32
-	in [64]char
+	in [64]char // FIXME: should this be [64]byte instead?
 }
 fn C.mg_md5_init(&C.mg_md5_ctx)
 fn C.mg_md5_update(&C.mg_md5_ctx, charptr, size_t)
-fn C.mg_md5_final(&C.mg_md5_ctx, [16]char)
+fn C.mg_md5_final(&C.mg_md5_ctx, [16]char) // FIXME: [16]byte?
 
 // SHA1
 [typedef]
 struct mg_sha1_ctx {
 	state [5]u32
 	count [2]u32
-	buffer [64]char
+	buffer [64]char // FIXME
 }
 fn C.mg_sha1_init(&C.mg_sha1_ctx)
 fn C.mg_sha1_update(&C.mg_sha1_ctx, charptr, size_t)
 fn C.mg_sha1_final([20]char, &C.mg_sha1_ctx)
-fn C.mg_hmac_sha1(charptr, size_t, charptr, size_t, [20]char)
+fn C.mg_hmac_sha1(charptr, size_t, charptr, size_t, [20]char) // FIXME
 
 // Connection
 type mg_event_handler_t = fn(&C.mg_connection, int, voidptr, voidptr)
@@ -152,14 +152,14 @@ struct C.mg_connection {
 	mgr &C.mg_mgr
 	peer &C.mg_addr
 	fd voidptr
-	id ulong
+	id u32
 	recv &C.mg_iobuf
 	send &C.mg_iobuf
 	fn mg_event_handler_t
 	fn_data voidptr
 	pfn mg_event_handler_t
 	pfn_data voidptr
-	label [32]char
+	label [32]char // FIXME
 	tls voidptr
 	is_listening u32 = 1
 	is_client u32 = 1
@@ -216,7 +216,7 @@ struct C.mg_mgr {
 	dns4 &C.mg_dns
 	dns6 &C.mg_dns
 	dnstimeout int
-	nextid ulong
+	nextid u32
 }
 
 fn C.mg_mgr_poll(&C.mg_mgr, int)
@@ -310,7 +310,7 @@ fn C.mg_ws_send(&C.mg_connection, charptr, size_t, int) size_t
 
 // SNTP
 fn C.mg_sntp_connect(&C.mg_mgr, charptr, mg_event_handler_t, voidptr) &C.mg_connection
-fn C.mg_sntp_send(&C.mg_connection, ulong utc)
+fn C.mg_sntp_send(&C.mg_connection, u32)
 // FIXME: timeval not defined in V via C-prefix, afaik!
 //fn C.mg_sntp_parse(charptr, size_t, &C.timeval)
 
@@ -334,11 +334,11 @@ const {
 
 // QOS? Im not a math dude. o.o
 [inline]
-fn C.MQTT_QOS(int) int
+fn C.MQTT_QOS(any_int) any_int
 [inline]
-fn C.MQTT_GET_QOS(int) int
+fn C.MQTT_GET_QOS(any_int) any_int
 [inline]
-fn C.MQTT_SET_QOS(int) int
+fn C.MQTT_SET_QOS(any_int) any_int
 
 struct C.mg_mqtt_opts {
 	client_id &C.mg_str
@@ -376,7 +376,7 @@ struct C.mg_dns_message {
 	txnid u16
 	resolved bool
 	addr C.mg_addr
-	name [255]byte
+	name [255]byte // FIXME
 }
 
 struct C.mg_dns_header {
