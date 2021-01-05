@@ -3,16 +3,17 @@ module mongoose
 // Configure Mongoose to use ipv6 and mbedTLS.
 // OpenSSL would also be an option, but right now, there is no
 // "defines" in V. So I have to be assumptious.
-#cflags -DMG_ENABLE_MBEDTLS=1
-#cflags -DMG_ENABLE_IPV6=1
+$if option mg_openssl {}
+#flag -l openssl
+#flag -D MG_ENABLE_OPENSSL=1
+} $else {
+#flag -D MG_ENABLE_MBEDTLS=1
+}
 
-// Include both.
-// Right now, V doesn't have a proper way to add translation units
-// directly from a V file to simplify C compilation.
-// So instead, we abuse the preprocessor... yay?
-// Alternatively, I could use #cflags to just plop the C file in.
+#flag -D MG_ENABLE_IPV6=1
+
+#flag @VMOD/mongoose.c
 #include mongoose.h
-#include mongoose.c
 
 /**
 	This is NOT generated - I copytyped **everything** that follows - and also
