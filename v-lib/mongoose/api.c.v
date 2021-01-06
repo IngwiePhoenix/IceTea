@@ -1,16 +1,58 @@
 module mongoose
 
-// Configure Mongoose to use ipv6 and mbedTLS.
-// OpenSSL would also be an option, but right now, there is no
-// "defines" in V. So I have to be assumptious.
-$if option mg_openssl {}
+// V *does* have defines - so let's implement Mongoose's stuff.
+// At least, some of it.
+
+// This one *always* tries to use mbedTLS unless specified otherwise.
+// Mainly because so far I found it easier to work with mbedTLS than openSSL...
+// Plus, it might just be easier to distribute it that way. o.o
+$if mg_openssl {
 #flag -l openssl
 #flag -D MG_ENABLE_OPENSSL=1
+//module openssl // Mainly to trigger the C inclusion and stuff.
 } $else {
 #flag -D MG_ENABLE_MBEDTLS=1
+//module mbedtls
 }
 
+// Optimisticaly switch this enable flag to a disable one.
+// Mongoose is ment to be used on embedded things - but here, I am using it
+// for something considerably larger. So, optimisticaly, IPv6 is turned on by default.
+$if mg_disable_ipv6 {
+#flag -D MG_ENABLE_IPV6=0
+} $else {
 #flag -D MG_ENABLE_IPV6=1
+}
+
+// Server-side inclusions can be dangerous.
+// So for that, it's off by default.
+$if mg_enable_ssi {
+#flag -D MG_ENABLE_SSI=1
+} $else {
+#flag -D MG_ENABLE_SSI=0
+}
+
+// Uploading a file might become very useful - similar to downloading, of course.
+// Therefore, this one also is optimistically on by default and you have to
+// explicitly disable it.
+$if mg_disable_fs {
+#flag -D MG_ENABLE_FS=0
+} $else {
+#flag -D MG_ENABLE_FS=1
+}
+
+/**
+	Options not covered:
+	- MG_ENABLE_LWIP
+	- MG_ENABLE_SOCKET
+	- MG_ENABLE_LOG
+	- MG_ENABLE_MD5
+	- MG_ENABLE_DIRECTORY_LISTING
+	- MG_ENABLE_HTTP_DEBUG_ENDPOINT
+	- MG_ENABLE_SOCKETPAIR
+	These ones accept a value. Dont know if I can set that via -d...
+	- MG_MAX_HTTP_HEADERS=(int)
+ */
 
 #flag -I @VROOT/mongoose-git
 #flag @VROOT/mongoose-git/mongoose.c
@@ -51,17 +93,15 @@ fn C.mg_strstrip(C.mg_str) C.mg_str
 fn C.mg_strdup(C.mg_str) C.mg_str
 fn C.mg_strstr(C.mg_str, C.mg_str) charptr
 
-const {
-	// Redefining a few preprocessor macros in plain V
-	// This *should* help.
-	MG_NULL_STR := C.mg_str{NULL, 0}
-}
+// Redefining a few preprocessor macros in plain V
+// This *should* help.
+const MG_NULL_STR = C.mg_str{NULL, 0}
 
 // Timers
 struct C.mg_timer {
 	period_ms int
 	flags int
-	fn fn(voidptr)voidptr // fixme: This most definitively won't work.
+	//fn fn(voidptr)voidptr // fixme: This most definitively won't work.
 	arg voidptr
 	expire u32
 	next &C.mg_timer
@@ -83,8 +123,8 @@ fn C.mg_hexdump(charptr, int) charptr
 fn C.mg_hex(charptr, int, charptr) charptr
 fn C.mg_unhex(charptr, int, charptr)
 fn C.mg_unhexn(charptr, int) u32
-fn C.mg_asprintf(charptrptr, size_t, charptr, ...any) int
-fn C.mg_vasprintf(charptrptr, size_t, charptr, ...any) int
+fn C.mg_asprintf(charptrptr, size_t, charptr, ...voidptr) int
+fn C.mg_vasprintf(charptrptr, size_t, charptr, ...voidptr) int
 fn C.mg_to64(C.mg_str) i64
 fn C.mg_time() f32 // what's a double in V?
 fn C.mg_millis() u32
