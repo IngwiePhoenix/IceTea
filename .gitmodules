@@ -8,8 +8,8 @@
 	path = .deps/jerryscript
 	url = https://github.com/jerryscript-project/jerryscript.git
 [submodule ".deps/mongoose"]
-	path = .deps/mongoose
+	path = v-lib/mongoose/mongoose-git
 	url = https://github.com/cesanta/mongoose.git
 [submodule ".deps/subprocess"]
-	path = .deps/subprocess
+	path = v-lib/subprocess/subprocess-git
 	url = https://github.com/sheredom/subprocess.h.git

@@ -12,7 +12,8 @@ $if option mg_openssl {}
 
 #flag -D MG_ENABLE_IPV6=1
 
-#flag @VMOD/mongoose.c
+#flag -I @VROOT/mongoose-git
+#flag @VROOT/mongoose-git/mongoose.c
 #include mongoose.h
 
 /**
