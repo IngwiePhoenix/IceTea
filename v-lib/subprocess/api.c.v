@@ -1,5 +1,6 @@
 module subprocess
 
+#flag -I @VROOT/subprocess-git
 #include subprocess.h
 
 enum subprocess_option_e {
