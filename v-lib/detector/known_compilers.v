@@ -55,6 +55,21 @@ const known_CC = [
 		compiler_type: .hybrid
 		languages: ["c"]
 		env_hint: "CC"
+	},
+	Compiler {
+		bin_name: "sdcc"
+		full_name: "Small Device C Compiler"
+		paths_unix: [
+			"/usr/local/bin" // Package managers are quite often outdated about this one.
+			"/opt/sdcc/bin" // the Gameboy RGBDS toolchain installs it here sometimes.
+			"/usr/local/opt/sdcc/bin" // macOS Homebrew
+		]
+		paths_win32: [
+			// I haven't seen a Windows build of this.
+		]
+		compiler_type: .hybrid // This might actually not be true.
+		languages: ["c"]
+		env_hint: "SDCC"
 	}
 ]
 
@@ -114,6 +129,7 @@ const known_mixed_C = {
 			// that looks at the windows registry or uses vswhere.exe
 			// For now, huge FIXME.
 		]
+		compiler_type: .hybrid
 		languages: ["c", "c++"]
 	}
 }
@@ -126,6 +142,8 @@ const known_JAVAC = [
 		paths_unix: ["javac", "/usr/bin/javac"]
 		// FIXME: Need to figure out where this one lives at...
 		paths_win32: ["javac.exe"]
+		compiler_type: .monolithic
+		languages: ["java"]
 		env_hint: "JAVAC"
 	}
 ]
@@ -134,14 +152,30 @@ const known_JAVAC = [
 const known_GO = []
 
 // FIXME
-const known_SWIFT = []
+const known_SWIFT = [
+	Compiler {
+		bin_name: "swiftc"
+		full_name: "Apple Swift Compiler"
+		paths_unix: [
+			"swiftc"
+			"/usr/bin" // Provides the default, SDK given version on macOS
+			"/usr/local/bin"
+
+			// FIXME: Full path to DefaultToolchain.sdk - recent Xcode only.
+			"/Applications/Xcode.app/Contents/Developer"
+		]
+		compiler_type: .hybrid
+		languages: ["swift"]
+		env_hint: "SWIFTC"
+	}
+]
 
 // FIXME
 const known_RUST = [
 	Compiler {
 		bin_name: "rustc"
 		full_name: "Rust"
-		path_unix: [
+		paths_unix: [
 			"@HOME/.local/bin" // rustup
 			"/usr/bin"
 			"/usr/local/bin"
@@ -150,5 +184,63 @@ const known_RUST = [
 		path_win32: [
 			// FIXME
 		]
+
+	}
+]
+
+// FIXME: How do we define wasi-sdk? It's just Clang, really... hm.
+const KNOWN_WASM = [
+	Compiler {
+		bin_name: "emcc"
+		full_name: "Emscripten (Clang, C mode)"
+		paths_unix: [
+			"/usr/local/bin"
+			"@HOME/.local/bin"
+			"@EMSDK/bin"
+		]
+		paths_win32: [
+			// Literally anywhere. Not consistent, whatsoever.
+			// Options to fill this in:
+			// - Pick default paths for scoop and Chocolatey
+			// - Use environment variables
+			"@EMSDK/bin"
+		]
+
+		// FIXME: Actually, it's all the options.
+		// 1. It can link multiple objects in the form of LLVM bytecode.
+		// 2. It can only link objects for the same target.
+		// 3. You can feed it a whole source tree too, it'll take it.
+		compiler_type: .hybrid
+		languages: ["c"]
+		// No env_hint - given through the path search.
+	}
+	Compiler {
+		bin_name: "em++"
+		full_name: "Emscripten (Clang, C++ mode)"
+		paths_unix: [
+			"/usr/local/bin"
+			"@HOME/.local/bin"
+			"@EMSDK/bin"
+		]
+		paths_win32: [
+			"@EMSDK/bin"
+		]
+		compiler_type: .hybrid
+		languages: ["c++"]
+	}
+	Compiler {
+		bin_name: "cheerp"
+		full_name: "Learningtech Cheerp"
+		paths_unix: [
+			"/opt/cheerp/bin"
+			"/usr/local/cheerp/bin"
+			"/usr/local/bin"
+			"/usr/local/opt/cheerp/bin"
+		]
+		paths_win32: [
+			// FIXME
+		]
+		compiler_type: .hybrid // And, retargetable. js+wasm & native
+		languages: ["c", "c++"]
 	}
 ]

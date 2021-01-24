@@ -56,7 +56,7 @@ $if mg_disable_fs {
 
 #flag -I @VROOT/mongoose-git
 #flag @VROOT/mongoose-git/mongoose.c
-#include mongoose.h
+#include "mongoose.h"
 
 /**
 	This is NOT generated - I copytyped **everything** that follows - and also
